@@ -32,8 +32,7 @@ spec:
           command:
             - redis-server
           args:
-            - --appendonly
-            - "yes"
+            - /usr/local/etc/redis/redis.conf 
           ports:
             - containerPort: 6379 
           volumeMounts:
@@ -42,6 +41,10 @@ spec:
               readOnly: true
             - name: data 
               mountPath: /data 
+            - name: config 
+              mountPath: /usr/local/etc/redis/redis.conf 
+              subPath: redis.conf 
+              readOnly: true
       volumes:
         - name: host-time
           hostPath:
@@ -49,3 +52,6 @@ spec:
         - name: data 
           persistentVolumeClaim:
             claimName: {{.claim.name}}
+        - name: config 
+          configMap:
+            name: {{.cm.name}}

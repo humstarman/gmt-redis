@@ -7,6 +7,8 @@ CLAIM_NAME=${NAME}-data
 LABELS_KEY=app
 LABELS_VALUE=gmt-redis-test
 IMAGE_PULL_POLICY=IfNotPresent
+CM_NAME=${NAME}-conf
+CONF=./conf
 
 all: deploy
 
@@ -28,11 +30,14 @@ sed:
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.labels.key}}"?"${LABELS_KEY}"?g
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.labels.value}}"?"${LABELS_VALUE}"?g
 	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.claim.name}}"?"${CLAIM_NAME}"?g
+	@find ${MANIFEST} -type f -name "*.yaml" | xargs sed -i s?"{{.cm.name}}"?"${CM_NAME}"?g
 
 deploy: OP=create
 deploy: cp sed
+	@kubectl -n ${NAMESPACE} ${OP} configmap $(CM_NAME) --from-file ${CONF}/redis.conf
 	@kubectl ${OP} -f ${MANIFEST}/.
 
 clean: OP=delete
 clean:
 	@kubectl ${OP} -f ${MANIFEST}/.
+	@kubectl -n ${NAMESPACE} ${OP} configmap $(CM_NAME)
