@@ -41,3 +41,7 @@ clean: OP=delete
 clean:
 	@kubectl ${OP} -f ${MANIFEST}/.
 	@kubectl -n ${NAMESPACE} ${OP} configmap $(CM_NAME)
+
+mkcm:
+	-@kubectl -n ${NAMESPACE} delete configmap $(CM_NAME)
+	@kubectl -n ${NAMESPACE} create configmap $(CM_NAME) --from-file ${CONF}/redis.conf
